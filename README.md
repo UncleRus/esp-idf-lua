@@ -43,4 +43,4 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(my-esp-project)
 ```
 
-See example.
+See examples.
