@@ -2,10 +2,13 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <string.h>
+#include <stdbool.h>
 #include <lua/lua.h>
 #include <lua/lauxlib.h>
 #include <lua/lualib.h>
 #include <esp_spiffs.h>
+#include <esp_err.h>
+#include <esp_log.h>
 
 static const char *TAG = "LUA-VFS";
 

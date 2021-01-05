@@ -49,6 +49,7 @@ void test(void *arg)
     }
 
     printf("Prg loaded, heap: %d\n", xPortGetFreeHeapSize());
+    printf("\n\n%s\n\n", prg);
 
     r = lua_pcall(L, 0, 0, 0);
     if (r)

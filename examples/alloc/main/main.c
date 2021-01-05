@@ -25,16 +25,17 @@ static void report(lua_State *L, int status)
     lua_pop(L, 1);
 }
 
-static size_t lua_mem_size = 0;
+static int lua_mem_size = 0;
 
 static void* l_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
-    size_t new_size = lua_mem_size - osize + nsize;
+    int new_size = lua_mem_size - osize + nsize;
     if (new_size > LUA_MAX_MEMSIZE)
     {
-        printf("Error! Lua wants more memory than we can allocate!\n");
+        printf("Error! Lua wants more memory than we can allocate: %u > %u\n", new_size, LUA_MAX_MEMSIZE);
         return NULL;
     }
+    //printf("Reallocating: old = %u, new = %u\n", lua_mem_size, new_size);
     lua_mem_size = new_size;
 
     if (nsize == 0)

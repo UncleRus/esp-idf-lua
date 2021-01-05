@@ -1,5 +1,5 @@
 /*
-** $Id: linit.c,v 1.39.1.1 2017/04/19 17:20:42 roberto Exp $
+** $Id: linit.c $
 ** Initialization of libraries for lua.c and other clients
 ** See Copyright Notice in lua.h
 */
@@ -40,37 +40,16 @@
 ** program
 */
 static const luaL_Reg loadedlibs[] = {
-  {"_G", luaopen_base},
-#if defined(CONFIG_LUA_PACKAGE_LIB)
+  {LUA_GNAME, luaopen_base},
   {LUA_LOADLIBNAME, luaopen_package},
-#endif
-#if defined(CONFIG_LUA_COROUTINE_LIB)
   {LUA_COLIBNAME, luaopen_coroutine},
-#endif
-#if defined(CONFIG_LUA_TABLE_LIB)
   {LUA_TABLIBNAME, luaopen_table},
-#endif
-#if defined(CONFIG_LUA_IO_LIB)
   {LUA_IOLIBNAME, luaopen_io},
-#endif
-#if defined(CONFIG_LUA_OS_LIB)
   {LUA_OSLIBNAME, luaopen_os},
-#endif
-#if defined(CONFIG_LUA_STRING_LIB)
   {LUA_STRLIBNAME, luaopen_string},
-#endif
-#if defined(CONFIG_LUA_MATH_LIB)
   {LUA_MATHLIBNAME, luaopen_math},
-#endif
-#if defined(CONFIG_LUA_UTF8_LIB)
   {LUA_UTF8LIBNAME, luaopen_utf8},
-#endif
-#if defined(CONFIG_LUA_DEBUG_LIB)
   {LUA_DBLIBNAME, luaopen_debug},
-#endif
-#if defined(LUA_COMPAT_BITLIB)
-  {LUA_BITLIBNAME, luaopen_bit32},
-#endif
   {NULL, NULL}
 };
 

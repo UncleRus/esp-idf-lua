@@ -1,7 +1,6 @@
 set(srcs "lua/lapi.c"
          "lua/lauxlib.c"
          "lua/lbaselib.c"
-         "lua/lbitlib.c"
          "lua/lcode.c"
          "lua/lcorolib.c"
          "lua/lctype.c"
