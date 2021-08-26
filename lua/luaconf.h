@@ -11,39 +11,23 @@
 #include <limits.h>
 #include <stddef.h>
 
-#define LUA_USE_ESP_IDF
-
-#if defined(LUA_USE_ESP_IDF)
-/* XXX this header file does not need to include freertos/FreeRTOS.h.
- * but without it, ESP8266 RTOS SDK does not include `sdkconfig.h` in correct
- * order. as this header depends on sdkconfig.h, sdkconfig.h must be included
- * first. however, the SDK includes this header first, then includes
- * `sdkconfig.h` when freertos/FreeRTOS.h is not explicitly included. an
- * evidence can be found in `build/${COMPONENT}/${COMPONENT}.d` in a failed
- * build.
- */
-#include <freertos/FreeRTOS.h>
-#endif
 
 /*
 ** ===================================================================
 ** General Configuration File for Lua
 **
-** Some definitions here can be changed externally, through the
-** compiler (e.g., with '-D' options). Those are protected by
-** '#if !defined' guards. However, several other definitions should
-** be changed directly here, either because they affect the Lua
-** ABI (by making the changes here, you ensure that all software
-** connected to Lua, such as C libraries, will be compiled with the
-** same configuration); or because they are seldom changed.
+** Some definitions here can be changed externally, through the compiler
+** (e.g., with '-D' options): They are commented out or protected
+** by '#if !defined' guards. However, several other definitions
+** should be changed directly here, either because they affect the
+** Lua ABI (by making the changes here, you ensure that all software
+** connected to Lua, such as C libraries, will be compiled with the same
+** configuration); or because they are seldom changed.
 **
 ** Search for "@@" to find all configurable definitions.
 ** ===================================================================
 */
 
-#if defined(LUA_USE_ESP_IDF) && defined (CONFIG_LUA_COMPAT_5_3)
-#define LUA_COMPAT_5_3
-#endif
 
 /*
 ** {====================================================================
@@ -97,25 +81,11 @@
 
 /*
 ** {==================================================================
-** Configuration for Number types.
+** Configuration for Number types. These options should not be
+** set externally, because any other code connected to Lua must
+** use the same configuration.
 ** ===================================================================
 */
-
-/*
-@@ LUA_32BITS enables Lua with 32-bit integers and 32-bit floats.
-*/
-#define LUA_32BITS
-
-
-/*
-@@ LUA_C89_NUMBERS ensures that Lua uses the largest types available for
-** C89 ('long' and 'double'); Windows always has '__int64', so it does
-** not need to use this case.
-*/
-#if defined(LUA_USE_C89) && !defined(LUA_USE_WINDOWS)
-#define LUA_C89_NUMBERS
-#endif
-
 
 /*
 @@ LUA_INT_TYPE defines the type for Lua integers.
@@ -137,7 +107,31 @@
 #define LUA_FLOAT_DOUBLE	2
 #define LUA_FLOAT_LONGDOUBLE	3
 
-#if defined(LUA_32BITS)		/* { */
+
+/* Default configuration ('long long' and 'double', for 64-bit Lua) */
+#define LUA_INT_DEFAULT		LUA_INT_LONGLONG
+#define LUA_FLOAT_DEFAULT	LUA_FLOAT_DOUBLE
+
+
+/*
+@@ LUA_32BITS enables Lua with 32-bit integers and 32-bit floats.
+*/
+#define LUA_32BITS	0
+
+
+/*
+@@ LUA_C89_NUMBERS ensures that Lua uses the largest types available for
+** C89 ('long' and 'double'); Windows always has '__int64', so it does
+** not need to use this case.
+*/
+#if defined(LUA_USE_C89) && !defined(LUA_USE_WINDOWS)
+#define LUA_C89_NUMBERS		1
+#else
+#define LUA_C89_NUMBERS		0
+#endif
+
+
+#if LUA_32BITS		/* { */
 /*
 ** 32-bit integers and 'float'
 */
@@ -148,26 +142,21 @@
 #endif
 #define LUA_FLOAT_TYPE	LUA_FLOAT_FLOAT
 
-#elif defined(LUA_C89_NUMBERS)	/* }{ */
+#elif LUA_C89_NUMBERS	/* }{ */
 /*
 ** largest types available for C89 ('long' and 'double')
 */
 #define LUA_INT_TYPE	LUA_INT_LONG
 #define LUA_FLOAT_TYPE	LUA_FLOAT_DOUBLE
 
+#else		/* }{ */
+/* use defaults */
+
+#define LUA_INT_TYPE	LUA_INT_DEFAULT
+#define LUA_FLOAT_TYPE	LUA_FLOAT_DEFAULT
+
 #endif				/* } */
 
-
-/*
-** default configuration for 64-bit Lua ('long long' and 'double')
-*/
-#if !defined(LUA_INT_TYPE)
-#define LUA_INT_TYPE	LUA_INT_LONGLONG
-#endif
-
-#if !defined(LUA_FLOAT_TYPE)
-#define LUA_FLOAT_TYPE	LUA_FLOAT_DOUBLE
-#endif
 
 /* }================================================================== */
 
@@ -224,24 +213,6 @@
 		LUA_CDIR"?.dll;" \
 		LUA_CDIR"..\\lib\\lua\\" LUA_VDIR "\\?.dll;" \
 		LUA_CDIR"loadall.dll;" ".\\?.dll"
-#endif
-
-#elif defined(LUA_USE_ESP_IDF) /* }{ */
-
-#define LUA_ROOT    CONFIG_LUA_ROOT "/"
-#define LUA_LDIR    LUA_ROOT
-#define LUA_CDIR    LUA_ROOT "lib/lua/" LUA_VDIR "/"
-
-#if !defined(LUA_PATH_DEFAULT)
-#define LUA_PATH_DEFAULT  \
-        LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
-        LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua;" \
-        "./?.lua;" "./?/init.lua"
-#endif
-
-#if !defined(LUA_CPATH_DEFAULT)
-#define LUA_CPATH_DEFAULT \
-        LUA_CDIR"?.so;" LUA_CDIR"loadall.so;" "./?.so"
 #endif
 
 #else			/* }{ */
@@ -407,14 +378,13 @@
 
 /*
 ** {==================================================================
-** Configuration for Numbers.
+** Configuration for Numbers (low-level part).
 ** Change these definitions if no predefined LUA_FLOAT_* / LUA_INT_*
 ** satisfy your needs.
 ** ===================================================================
 */
 
 /*
-@@ LUA_NUMBER is the floating-point type used by Lua.
 @@ LUAI_UACNUMBER is the result of a 'default argument promotion'
 @@ over a floating number.
 @@ l_floatatt(x) corrects float attribute 'x' to the proper float type
@@ -507,10 +477,7 @@
 
 
 /*
-@@ LUA_INTEGER is the integer type used by Lua.
-**
 @@ LUA_UNSIGNED is the unsigned version of LUA_INTEGER.
-**
 @@ LUAI_UACINT is the result of a 'default argument promotion'
 @@ over a LUA_INTEGER.
 @@ LUA_INTEGER_FRMLEN is the length modifier for reading/writing integers.
@@ -693,6 +660,34 @@
 #define lua_getlocaledecpoint()		(localeconv()->decimal_point[0])
 #endif
 
+
+/*
+** macros to improve jump prediction, used mostly for error handling
+** and debug facilities. (Some macros in the Lua API use these macros.
+** Define LUA_NOBUILTIN if you do not want '__builtin_expect' in your
+** code.)
+*/
+#if !defined(luai_likely)
+
+#if defined(__GNUC__) && !defined(LUA_NOBUILTIN)
+#define luai_likely(x)		(__builtin_expect(((x) != 0), 1))
+#define luai_unlikely(x)	(__builtin_expect(((x) != 0), 0))
+#else
+#define luai_likely(x)		(x)
+#define luai_unlikely(x)	(x)
+#endif
+
+#endif
+
+
+#if defined(LUA_CORE) || defined(LUA_LIB)
+/* shorter names for Lua's own use */
+#define l_likely(x)	luai_likely(x)
+#define l_unlikely(x)	luai_unlikely(x)
+#endif
+
+
+
 /* }================================================================== */
 
 
@@ -740,17 +735,9 @@
 ** (It must fit into max(size_t)/32.)
 */
 #if LUAI_IS32INT
-
-#if defined(LUA_USE_ESP_IDF)
-#define LUAI_MAXSTACK       CONFIG_LUA_MAXSTACK
-#else
 #define LUAI_MAXSTACK		1000000
-#endif
-
 #else
-
 #define LUAI_MAXSTACK		15000
-
 #endif
 
 

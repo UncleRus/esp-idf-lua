@@ -2,7 +2,7 @@
 
 https://www.lua.org
 
-Version 5.4.2
+Version 5.4.3
 
 ## What is Lua?
 
