@@ -117,7 +117,9 @@
 /*
 @@ LUA_32BITS enables Lua with 32-bit integers and 32-bit floats.
 */
+#if !defined(LUA_32BITS)
 #define LUA_32BITS	0
+#endif
 
 
 /*
