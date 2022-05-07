@@ -13,6 +13,14 @@
 
 #define LUA_USE_ESP_IDF
 
+#ifdef LUA_USE_ESP_IDF
+
+#ifdef CONFIG_LUA_COMPAT_5_3
+#define LUA_COMPAT_5_3
+#endif
+
+#endif
+
 /*
 ** ===================================================================
 ** General Configuration File for Lua
@@ -117,7 +125,7 @@
 /*
 @@ LUA_32BITS enables Lua with 32-bit integers and 32-bit floats.
 */
-#define LUA_32BITS	0
+#define LUA_32BITS  0
 
 
 /*
@@ -216,11 +224,11 @@
 		LUA_CDIR"loadall.dll;" ".\\?.dll"
 #endif
 
-#elif defined(LUA_USE_ESP_IDF) /* }{ */
+#elif defined(LUA_USE_ESP_IDF)	/* }{ */
 
-#define LUA_ROOT    CONFIG_LUA_ROOT "/"
-#define LUA_LDIR    LUA_ROOT
-#define LUA_CDIR    LUA_ROOT "lib/lua/" LUA_VDIR "/"
+#define LUA_ROOT	CONFIG_LUA_ROOT "/"
+#define LUA_LDIR	LUA_ROOT
+#define LUA_CDIR	LUA_ROOT "lib/lua/" LUA_VDIR "/"
 
 #if !defined(LUA_PATH_DEFAULT)
 #define LUA_PATH_DEFAULT  \
@@ -504,7 +512,6 @@
 @@ LUA_MAXINTEGER is the maximum value for a LUA_INTEGER.
 @@ LUA_MININTEGER is the minimum value for a LUA_INTEGER.
 @@ LUA_MAXUNSIGNED is the maximum value for a LUA_UNSIGNED.
-@@ LUA_UNSIGNEDBITS is the number of bits in a LUA_UNSIGNED.
 @@ lua_integer2str converts an integer to a string.
 */
 
@@ -523,9 +530,6 @@
 ** can turn a comparison between unsigneds into a signed comparison)
 */
 #define LUA_UNSIGNED		unsigned LUAI_UACINT
-
-
-#define LUA_UNSIGNEDBITS	(sizeof(LUA_UNSIGNED) * CHAR_BIT)
 
 
 /* now the variable definitions */
@@ -753,10 +757,16 @@
 ** space (and to reserve some numbers for pseudo-indices).
 ** (It must fit into max(size_t)/32.)
 */
+#ifdef LUA_USE_ESP_IDF
+#define LUAI_MAXSTACK CONFIG_LUA_MAXSTACK
+#else
+
 #if LUAI_IS32INT
 #define LUAI_MAXSTACK		1000000
 #else
 #define LUAI_MAXSTACK		15000
+#endif
+
 #endif
 
 

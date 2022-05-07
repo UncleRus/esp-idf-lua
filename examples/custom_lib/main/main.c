@@ -24,7 +24,7 @@ static const char *prg =
         "gpio.set_direction(" GPIO_PIN ", 2)\n"
         "level = 1\n"
         "for i = 1, 100 do\n"
-        "  print(string.format(\"Iteration %d...\", i))\n"
+        "  print(string.format(\"Iteration %d..., GPIO5=%d\", i, level))\n"
         "  gpio.set_level(" GPIO_PIN ", level)\n"
         "  level = 1 - level\n"
         "  rtos.delay(500)\n"

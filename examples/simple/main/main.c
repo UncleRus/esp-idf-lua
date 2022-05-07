@@ -26,6 +26,7 @@ static int report(lua_State *L, int status)
 
 void test(void *arg)
 {
+    printf("\n\n%s\n\n", prg);
     printf("Start, heap: %d\n", xPortGetFreeHeapSize());
 
     lua_State *L = luaL_newstate();
@@ -49,11 +50,12 @@ void test(void *arg)
     }
 
     printf("Prg loaded, heap: %d\n", xPortGetFreeHeapSize());
-    printf("\n\n%s\n\n", prg);
 
+    printf("-------------------------------------------\n");
     r = lua_pcall(L, 0, 0, 0);
     if (r)
         report(L, r);
+    printf("-------------------------------------------\n");
 
     printf("Prg done, heap: %d\n", xPortGetFreeHeapSize());
 
@@ -63,6 +65,7 @@ void test(void *arg)
     while (1)
     {
         printf(".");
+        fflush(NULL);
         vTaskDelay(100);
     }
 }

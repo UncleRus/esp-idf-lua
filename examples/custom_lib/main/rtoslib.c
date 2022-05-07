@@ -6,8 +6,7 @@ static int ldelay(lua_State *L)
 {
     int ms = luaL_checkinteger(L, 1);
 
-    if (ms >= 0)
-        vTaskDelay(pdMS_TO_TICKS(ms));
+    vTaskDelay(pdMS_TO_TICKS(ms));
 
     return 0;
 }
