@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <string.h>
@@ -78,7 +79,7 @@ void test(void *arg)
     report(L, r);
     lua_close(L);
 
-    printf("State closed, heap: %d\n", xPortGetFreeHeapSize());
+    printf("State closed, heap: %" PRIu32 "\n", xPortGetFreeHeapSize());
 
     while (1)
     {
