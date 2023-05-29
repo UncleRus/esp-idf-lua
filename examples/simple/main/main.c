@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <string.h>
@@ -27,7 +28,7 @@ static int report(lua_State *L, int status)
 void test(void *arg)
 {
     printf("\n\n%s\n\n", prg);
-    printf("Start, heap: %d\n", xPortGetFreeHeapSize());
+    printf("Start, heap: %" PRIu32 "\n", xPortGetFreeHeapSize());
 
     lua_State *L = luaL_newstate();
     if (!L)
@@ -36,11 +37,11 @@ void test(void *arg)
         while (1) { vTaskDelay(1000); }
     }
 
-    printf("State ready, heap: %d\n", xPortGetFreeHeapSize());
+    printf("State ready, heap: %" PRIu32 "\n", xPortGetFreeHeapSize());
 
     luaL_openlibs(L);
 
-    printf("Libs ready, heap: %d\n", xPortGetFreeHeapSize());
+    printf("Libs ready, heap: %" PRIu32 "\n", xPortGetFreeHeapSize());
 
     int r = luaL_loadstring(L, prg);
     if (r)
@@ -49,7 +50,7 @@ void test(void *arg)
         while (1) { vTaskDelay(1000); }
     }
 
-    printf("Prg loaded, heap: %d\n", xPortGetFreeHeapSize());
+    printf("Prg loaded, heap: %" PRIu32 "\n", xPortGetFreeHeapSize());
 
     printf("-------------------------------------------\n");
     r = lua_pcall(L, 0, 0, 0);
@@ -57,11 +58,11 @@ void test(void *arg)
         report(L, r);
     printf("-------------------------------------------\n");
 
-    printf("Prg done, heap: %d\n", xPortGetFreeHeapSize());
+    printf("Prg done, heap: %" PRIu32 "\n", xPortGetFreeHeapSize());
 
     lua_close(L);
 
-    printf("State closed, heap: %d\n", xPortGetFreeHeapSize());
+    printf("State closed, heap: %" PRIu32 "\n", xPortGetFreeHeapSize());
     while (1)
     {
         printf(".");
